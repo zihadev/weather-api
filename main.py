@@ -1,23 +1,42 @@
+# coding=utf-8
 import random
-
 from flask import Flask, render_template
+import data_processing as data_processing
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    # minimum_date = data_processing.start_date
+    # maximum_date = data_processing.end_date
+    minimum_date = "1860-01-01"
+    maximum_date = "2022-05-31"
+    return render_template("home.html", minimum_date=minimum_date,
+                           maximum_date=maximum_date)
 
 
 @app.route("/api/v1/<station>/<date>")
 def api(station, date):
     temperature = random.randint(-50, 50)
-    return {
-        "station": station,
-        "date": date,
-        "hard coded temp": temperature
-    }
+    if len(str(date)) != 8:
+        info = "bad date"
+        return {"info": info
+                }
+    else:
+
+        formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+        formatted_station = int(station)
+        temp = data_processing.check_api(date=formatted_date,
+                                         station=formatted_station)
+
+        return {
+
+            "station": station,
+            "date": date,
+            "temp": temp,
+            "formatted date ": formatted_date,
+        }
 
 
 if __name__ == "__main__":
