@@ -12,8 +12,13 @@ def home():
     # maximum_date = data_processing.end_date
     minimum_date = "1860-01-01"
     maximum_date = "2022-05-31"
+    stations_list = data_processing.stations_list()
+    stations_table = stations_list[0:1000].to_html()
+    print(len(stations_list))
     return render_template("home.html", minimum_date=minimum_date,
-                           maximum_date=maximum_date)
+                           maximum_date=maximum_date,
+                           stations_number=len(stations_list),
+                           stations_table=stations_table)
 
 
 @app.route("/api/v1/<station>/<date>")
@@ -37,6 +42,18 @@ def api(station, date):
             "temp": temp,
             "formatted date ": formatted_date,
         }
+
+
+@app.route("/api/v1/<station>")
+def all_data(station):
+    data = data_processing.station_data(station)
+    return data
+
+
+@app.route("/api/v2/<station>/<year>")
+def year_data(station, year):
+    data = data_processing.year_data(station, year)
+    return data
 
 
 if __name__ == "__main__":

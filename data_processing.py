@@ -7,7 +7,7 @@ import re
 import sys
 
 
-# check numbers of working stations
+# check numbers of working stations in files
 def stations_check():
     folder_path = 'data/data_small'
     numbers = []
@@ -20,6 +20,27 @@ def stations_check():
             number = match.group(1)
             numbers.append(number)
     return numbers
+
+
+def stations_list():
+    stations_df = pd.read_csv('data/data_small/stations.txt', skiprows=17)
+    return stations_df
+
+
+def station_data(station_id):
+    file_path = f"data/data_small/TG_STAID{int(station_id):06d}.txt"
+    df = pd.read_csv(file_path, skiprows=20, parse_dates=["    DATE"])
+    result = df.to_dict(orient='records')
+    return result
+
+
+def year_data(station_id, year):
+    file_path = f"data/data_small/TG_STAID{int(station_id):06d}.txt"
+    df = pd.read_csv(file_path, skiprows=20, parse_dates=["    DATE"])
+    result = df.loc[(df['    DATE'] >= f'{year}-01-01') &
+                    (df['    DATE'] <= f'{year}-12-31')]
+    result = result.to_dict(orient='records')
+    return result
 
 
 def preparing_data(station_id):
@@ -48,7 +69,5 @@ def check_api(date, station):
     start_date, end_date, df = preparing_data(station)
     if start_date != "No data":
         my_data = df.loc[(df['DATE'] == date) & (df['STAID'] == station)]
-        # print("dataZH \n ==== \n", my_data)
-        # print("start = ", start_date, " end=", end_date)
         return str(my_data['TG'].squeeze())
     return start_date
